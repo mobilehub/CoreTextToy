@@ -14,6 +14,7 @@
 
 @interface CMarkupValueTransformer ()
 @property (readwrite, nonatomic, retain) UIFont *standardFont;
+@property (readwrite, nonatomic, retain) NSSet *supportedTags;
 @property (readwrite, nonatomic, retain) NSMutableDictionary *attributesForTagSets;
 @end
 
@@ -22,6 +23,7 @@
 @implementation CMarkupValueTransformer
 
 @synthesize standardFont;
+@synthesize supportedTags;
 @synthesize attributesForTagSets;
 
 + (Class)transformedValueClass
@@ -40,11 +42,18 @@
 		{
         standardFont = [UIFont fontWithName:@"Helvetica" size:16.0];
         
+        supportedTags = [NSSet setWithObjects:@"b", @"i", NULL];
         
         attributesForTagSets = [NSMutableDictionary dictionary];
         
-        
-        NSDictionary *theAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+        NSDictionary *theAttributes = NULL;
+
+        theAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+            (__bridge_transfer id)self.standardFont.CTFont, (__bridge NSString *)kCTFontAttributeName,
+            NULL];
+        [attributesForTagSets setObject:theAttributes forKey:[NSSet set]];
+
+        theAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
             (__bridge_transfer id)[self.standardFont boldItalicFont].CTFont, (__bridge NSString *)kCTFontAttributeName,
             NULL];
         [attributesForTagSets setObject:theAttributes forKey:[NSSet setWithObjects:@"b", @"i", NULL]];
@@ -58,6 +67,8 @@
             (__bridge_transfer id)[self.standardFont italicFont].CTFont, (__bridge NSString *)kCTFontAttributeName,
             NULL];
         [attributesForTagSets setObject:theAttributes forKey:[NSSet setWithObjects:@"i", NULL]];
+        
+        // TODO generate supported tags from attributesForTagSets keys.
 		}
 	return(self);
 	}
@@ -82,21 +93,10 @@
 
     void (^ApplyStyleBlock)(void) = ^(void) {
         NSMutableDictionary *theAttributes = [NSMutableDictionary dictionary];
-        NSSet *theAttributeSet = [NSSet setWithArray:theStyleStack];
-        [theAttributes setObject:(__bridge_transfer id)theFont.CTFont forKey:(__bridge NSString *)kCTFontAttributeName];
-        if ([theAttributeSet containsObject:@"<b>"] && [theAttributeSet containsObject:@"<i>"])
-            {
-            [theAttributes setObject:(__bridge_transfer id)[theFont boldItalicFont].CTFont forKey:(__bridge NSString *)kCTFontAttributeName];
-            }
-        else if ([theAttributeSet containsObject:@"<b>"])
-            {
-            [theAttributes setObject:(__bridge_transfer id)[theFont boldFont].CTFont forKey:(__bridge NSString *)kCTFontAttributeName];
-            }
-        else if ([theAttributeSet containsObject:@"<i>"])
-            {
-            [theAttributes setObject:(__bridge_transfer id)[theFont italicFont].CTFont forKey:(__bridge NSString *)kCTFontAttributeName];
-            }
-
+        NSSet *theActiveTagSet = [NSSet setWithArray:theStyleStack];
+        
+        NSDictionary *theAttributesForActiveTagSet = [self.attributesForTagSets objectForKey:theActiveTagSet];
+        [theAttributes addEntriesFromDictionary:theAttributesForActiveTagSet];
         [theAttributedString appendAttributedString:[[NSAttributedString alloc] initWithString:theString attributes:theAttributes]];
         };
 
@@ -104,37 +104,34 @@
         {
         NSString *theRun = NULL;
         
-        if ([theScanner scanString:@"<b>" intoString:NULL])
+        for (NSString *theTag in self.supportedTags)
             {
-            ApplyStyleBlock();
-            theString = [NSMutableString string]; 
-            
-            [theStyleStack addObject:@"<b>"];
-            }
-        else if ([theScanner scanString:@"</b>" intoString:NULL])
-            {
-            ApplyStyleBlock();
-            theString = [NSMutableString string]; 
+            NSString *theOpenTag = [NSString stringWithFormat:@"<%@>", theTag];
+            NSString *theCloseTag = [NSString stringWithFormat:@"</%@>", theTag];
 
-            NSAssert([[theStyleStack lastObject] isEqualToString:@"<b>"], @"Tag mismatch");
-            [theStyleStack removeLastObject];
-            }
-        else if ([theScanner scanString:@"<i>" intoString:NULL])
-            {
-            ApplyStyleBlock();
-            theString = [NSMutableString string]; 
-            
-            [theStyleStack addObject:@"<i>"];
-            }
-        else if ([theScanner scanString:@"</i>" intoString:NULL])
-            {
-            ApplyStyleBlock();
-            theString = [NSMutableString string]; 
+            if ([theScanner scanString:theOpenTag intoString:NULL])
+                {
+                ApplyStyleBlock();
+                theString = [NSMutableString string]; 
+                
+                [theStyleStack addObject:theTag];
+                
+                continue;
+                }
+            else if ([theScanner scanString:theCloseTag intoString:NULL])
+                {
+                ApplyStyleBlock();
+                theString = [NSMutableString string]; 
 
-            NSAssert([[theStyleStack lastObject] isEqualToString:@"<i>"], @"Tag mismatch");
-            [theStyleStack removeLastObject];
+                NSAssert([[theStyleStack lastObject] isEqualToString:theTag], @"Tag mismatch");
+                [theStyleStack removeLastObject];
+
+                continue;
+                }
             }
-        else if ([theScanner scanCharactersFromSet:theNotTagCharacterSet intoString:&theRun])
+
+        
+        if ([theScanner scanCharactersFromSet:theNotTagCharacterSet intoString:&theRun])
             {
             [theString appendString:theRun];
             }
