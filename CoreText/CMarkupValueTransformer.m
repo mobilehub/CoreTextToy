@@ -11,6 +11,8 @@
 #import <CoreText/CoreText.h>
 
 #import "UIFont_CoreTextExtensions.h"
+#import "CMarkupValueTransformer.h"
+#import "CSimpleHTMLParser.h"
 
 @interface CMarkupValueTransformer ()
 @property (readwrite, nonatomic, retain) UIFont *standardFont;
@@ -75,74 +77,56 @@
 
 - (id)transformedValue:(id)value
     {
+    return([self transformedValue:value error:NULL]);
+    }
+
+- (id)transformedValue:(id)value error:(NSError **)outError
+    {
     NSString *theMarkup = value;
 
-    UIFont *theFont = self.standardFont;
-
     NSMutableAttributedString *theAttributedString = [[NSMutableAttributedString alloc] init];
-    [theAttributedString addAttribute:(__bridge NSString *)kCTFontAttributeName value:(__bridge_transfer id)theFont.CTFont range:(NSRange){ .length = 0 }];
   
-    NSCharacterSet *theNotTagCharacterSet = [[NSCharacterSet characterSetWithCharactersInString:@"< "] invertedSet];
-    
-    NSScanner *theScanner = [[NSScanner alloc] initWithString:theMarkup];
-    theScanner.charactersToBeSkipped = NULL;
-
+    __block NSMutableDictionary *theAttributes = NULL;  
+  
     NSMutableArray *theStyleStack = [NSMutableArray array];
 
-    __block NSMutableString *theString = [NSMutableString string]; 
+    CSimpleHTMLParser *theParser = [[CSimpleHTMLParser alloc] init];
+    
+    theParser.openTagHandler = ^(NSString *inTag, NSArray *tagStack) {
+        if ([inTag isEqualToString:@"br"])
+            {
+            [theAttributedString appendAttributedString:[[NSAttributedString alloc] initWithString:@"\n" attributes:theAttributes]];
+            }
+        else if ([self.supportedTags containsObject:inTag])
+            {
+            [theStyleStack addObject:inTag];
+            }
+        };
 
-    void (^ApplyStyleBlock)(void) = ^(void) {
-        NSMutableDictionary *theAttributes = [NSMutableDictionary dictionary];
+    theParser.closeTagHandler = ^(NSString *inTag, NSArray *tagStack) {
+        if ([self.supportedTags containsObject:inTag])
+            {
+            [theStyleStack removeLastObject];
+            }
+        };
+    
+
+    theParser.textHandler = ^(NSString *inString, NSArray *tagStack) {
+        theAttributes = [NSMutableDictionary dictionary];
         NSSet *theActiveTagSet = [NSSet setWithArray:theStyleStack];
         
         NSDictionary *theAttributesForActiveTagSet = [self.attributesForTagSets objectForKey:theActiveTagSet];
         [theAttributes addEntriesFromDictionary:theAttributesForActiveTagSet];
-        [theAttributedString appendAttributedString:[[NSAttributedString alloc] initWithString:theString attributes:theAttributes]];
+        
+        [theAttributedString appendAttributedString:[[NSAttributedString alloc] initWithString:inString attributes:theAttributes]];
         };
-
-    while ([theScanner isAtEnd] == NO)
+    
+    
+    if ([theParser parseString:theMarkup error:outError] == NO)
         {
-        NSString *theRun = NULL;
-        
-        for (NSString *theTag in self.supportedTags)
-            {
-            NSString *theOpenTag = [NSString stringWithFormat:@"<%@>", theTag];
-            NSString *theCloseTag = [NSString stringWithFormat:@"</%@>", theTag];
-
-            if ([theScanner scanString:theOpenTag intoString:NULL])
-                {
-                ApplyStyleBlock();
-                theString = [NSMutableString string]; 
-                
-                [theStyleStack addObject:theTag];
-                
-                continue;
-                }
-            else if ([theScanner scanString:theCloseTag intoString:NULL])
-                {
-                ApplyStyleBlock();
-                theString = [NSMutableString string]; 
-
-                NSAssert([[theStyleStack lastObject] isEqualToString:theTag], @"Tag mismatch");
-                [theStyleStack removeLastObject];
-
-                continue;
-                }
-            }
-
-        
-        if ([theScanner scanCharactersFromSet:theNotTagCharacterSet intoString:&theRun])
-            {
-            [theString appendString:theRun];
-            }
-        else if ([theScanner scanCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:NULL])
-            {
-            [theString appendString:@" "];
-            }
+        return(NULL);
         }
-    
-    ApplyStyleBlock();
-    
+
     return([theAttributedString copy]);
     }
 
@@ -152,10 +136,13 @@
 
 @implementation NSAttributedString (NSAttributedString_MarkupExtensions)
 
-+ (NSAttributedString *)attributedStringWithMarkup:(NSString *)inMarkup
++ (NSAttributedString *)attributedStringWithMarkup:(NSString *)inMarkup error:(NSError **)outError
     {
     CMarkupValueTransformer *theTransformer = [[CMarkupValueTransformer alloc] init];
-    return([theTransformer transformedValue:inMarkup]);
+
+    NSAttributedString *theAttributedString = [theTransformer transformedValue:inMarkup error:outError];
+
+    return(theAttributedString);
     }
 
 @end

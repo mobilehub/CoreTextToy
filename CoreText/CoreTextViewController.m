@@ -23,7 +23,7 @@
 
 - (void)awakeFromNib
     {
-    self.previewView.text = [NSAttributedString attributedStringWithMarkup:self.editView.text];
+    self.previewView.text = [NSAttributedString attributedStringWithMarkup:self.editView.text error:NULL];
     }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -33,7 +33,14 @@
 
 - (void)textViewDidChange:(UITextView *)textView;
     {
-    self.previewView.text = [NSAttributedString attributedStringWithMarkup:self.editView.text];
+    NSError *theError = NULL;
+    NSAttributedString *theText = [NSAttributedString attributedStringWithMarkup:self.editView.text error:&theError];
+    if (theText == NULL)
+        {
+        theText = [[NSAttributedString alloc] initWithString:[theError description]];
+        }
+    
+    self.previewView.text = theText;
     }
 
 @end

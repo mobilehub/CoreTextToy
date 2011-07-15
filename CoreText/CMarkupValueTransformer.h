@@ -10,12 +10,14 @@
 
 @interface CMarkupValueTransformer : NSValueTransformer
 
+- (id)transformedValue:(id)value error:(NSError **)outError;
+
 @end
 
 #pragma mark -
 
 @interface NSAttributedString (NSAttributedString_MarkupExtensions)
 
-+ (NSAttributedString *)attributedStringWithMarkup:(NSString *)inMarkup;
++ (NSAttributedString *)attributedStringWithMarkup:(NSString *)inMarkup error:(NSError **)outError;
 
 @end

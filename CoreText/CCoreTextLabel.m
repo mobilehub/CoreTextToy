@@ -37,7 +37,10 @@
     {
     if (framesetter == NULL)
         {
-        framesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)self.text);
+        if (self.text)
+            {
+            framesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)self.text);
+            }
         }
     return(framesetter);
     }
@@ -63,29 +66,29 @@
     // TODO this is all just test code.
     self.layer.borderWidth = 1.0;
     self.layer.borderColor = [UIColor redColor].CGColor;
-
-    NSString *theHTMLString = @"<i>Hello</i> <b>world</b>";
-    self.text = [NSAttributedString attributedStringWithMarkup:theHTMLString];
     }
 
 - (void)drawRect:(CGRect)rect
     {
-    UIBezierPath *thePath = [UIBezierPath bezierPathWithRect:self.bounds];
+    if (self.framesetter)
+        {
+        UIBezierPath *thePath = [UIBezierPath bezierPathWithRect:self.bounds];
 
-    CTFrameRef theFrame = CTFramesetterCreateFrame(self.framesetter, (CFRange){ .length = [self.text length] }, thePath.CGPath, NULL);
+        CTFrameRef theFrame = CTFramesetterCreateFrame(self.framesetter, (CFRange){ .length = [self.text length] }, thePath.CGPath, NULL);
 
-    CGContextRef theContext = UIGraphicsGetCurrentContext();
+        CGContextRef theContext = UIGraphicsGetCurrentContext();
 
-    CGContextSaveGState(theContext);
+        CGContextSaveGState(theContext);
 
-    CGContextScaleCTM(theContext, 1.0, -1.0);
-    CGContextTranslateCTM(theContext, 0.0, -self.bounds.size.height);
+        CGContextScaleCTM(theContext, 1.0, -1.0);
+        CGContextTranslateCTM(theContext, 0.0, -self.bounds.size.height);
 
-    CTFrameDraw(theFrame, theContext);
+        CTFrameDraw(theFrame, theContext);
 
-    CGContextRestoreGState(theContext);
-    
-    CFRelease(theFrame);
+        CGContextRestoreGState(theContext);
+        
+        CFRelease(theFrame);
+        }
     }
 
 @end
