@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		4506230E13D0BB6100086997 /* CMarkupValueTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4506230D13D0BB6100086997 /* CMarkupValueTransformer.m */; };
+		4506231113D0D26900086997 /* CSimpleHTMLParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4506231013D0D26900086997 /* CSimpleHTMLParser.m */; };
+		4506231213D0D48200086997 /* CSimpleHTMLParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4506231013D0D26900086997 /* CSimpleHTMLParser.m */; };
 		45DC555213CD6F1B00F115ED /* UIFont_CoreTextExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 45DC555113CD6F1B00F115ED /* UIFont_CoreTextExtensions.m */; };
 		45FF283313CD6920006D9574 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45FF283213CD6920006D9574 /* UIKit.framework */; };
 		45FF283513CD6920006D9574 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45FF283413CD6920006D9574 /* Foundation.framework */; };
@@ -41,6 +43,8 @@
 /* Begin PBXFileReference section */
 		4506230C13D0BB6100086997 /* CMarkupValueTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMarkupValueTransformer.h; sourceTree = "<group>"; };
 		4506230D13D0BB6100086997 /* CMarkupValueTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMarkupValueTransformer.m; sourceTree = "<group>"; };
+		4506230F13D0D26900086997 /* CSimpleHTMLParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSimpleHTMLParser.h; sourceTree = "<group>"; };
+		4506231013D0D26900086997 /* CSimpleHTMLParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CSimpleHTMLParser.m; sourceTree = "<group>"; };
 		45DC555013CD6F1B00F115ED /* UIFont_CoreTextExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIFont_CoreTextExtensions.h; sourceTree = "<group>"; };
 		45DC555113CD6F1B00F115ED /* UIFont_CoreTextExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIFont_CoreTextExtensions.m; sourceTree = "<group>"; };
 		45FF282E13CD6920006D9574 /* CoreText.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoreText.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -138,6 +142,8 @@
 				45DC555113CD6F1B00F115ED /* UIFont_CoreTextExtensions.m */,
 				4506230C13D0BB6100086997 /* CMarkupValueTransformer.h */,
 				4506230D13D0BB6100086997 /* CMarkupValueTransformer.m */,
+				4506230F13D0D26900086997 /* CSimpleHTMLParser.h */,
+				4506231013D0D26900086997 /* CSimpleHTMLParser.m */,
 				45FF283913CD6920006D9574 /* Supporting Files */,
 			);
 			path = CoreText;
@@ -286,6 +292,7 @@
 				45FF286B13CD693F006D9574 /* CCoreTextLabel.m in Sources */,
 				45DC555213CD6F1B00F115ED /* UIFont_CoreTextExtensions.m in Sources */,
 				4506230E13D0BB6100086997 /* CMarkupValueTransformer.m in Sources */,
+				4506231113D0D26900086997 /* CSimpleHTMLParser.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -294,6 +301,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				45FF286013CD6920006D9574 /* CoreTextTests.m in Sources */,
+				4506231213D0D48200086997 /* CSimpleHTMLParser.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

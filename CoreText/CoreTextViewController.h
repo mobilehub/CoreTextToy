@@ -8,6 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
+@class CCoreTextLabel;
+
 @interface CoreTextViewController : UIViewController
+
+@property (readwrite, nonatomic, retain) IBOutlet UITextView *editView;
+@property (readwrite, nonatomic, retain) IBOutlet CCoreTextLabel *previewView;
 
 @end

@@ -8,55 +8,32 @@
 
 #import "CoreTextViewController.h"
 
+#import "CMarkupValueTransformer.h"
+#import "CCoreTextLabel.h"
+
+@interface CoreTextViewController () <UITextViewDelegate>
+@end
+
+#pragma mark -
+
 @implementation CoreTextViewController
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Release any cached data, images, etc that aren't in use.
-}
+@synthesize editView;
+@synthesize previewView;
 
-#pragma mark - View lifecycle
-
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-
-//    NSLog(@"%@", [UIFont familyNames]);
-
-}
-
-- (void)viewDidUnload
-{
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-}
-
-- (void)viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-}
-
-- (void)viewWillDisappear:(BOOL)animated
-{
-	[super viewWillDisappear:animated];
-}
-
-- (void)viewDidDisappear:(BOOL)animated
-{
-	[super viewDidDisappear:animated];
-}
+- (void)awakeFromNib
+    {
+    self.previewView.text = [NSAttributedString attributedStringWithMarkup:self.editView.text];
+    }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    // Return YES for supported orientations
+    {
     return YES;
-}
+    }
+
+- (void)textViewDidChange:(UITextView *)textView;
+    {
+    self.previewView.text = [NSAttributedString attributedStringWithMarkup:self.editView.text];
+    }
 
 @end
