@@ -13,6 +13,7 @@ At the moment it only supports "b" and "i" tags (in any valid, nested combinatio
 * Support tags with attributes. This is important for the "a" tag.
 * Support _basic_ CSS styling (changing colour of text perhaps)
 * Support links
+* Support tags like "p" & "br" that don't style the text but do control flow.
 
 ### UIFont_CoreTextExtensions
 
